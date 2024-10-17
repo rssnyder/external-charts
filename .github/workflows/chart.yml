@@ -1,0 +1,29 @@
+on:
+  workflow_dispatch:
+  push:
+    branches:    
+      - main
+    paths:
+      - 'charts/**'
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # important parameter
+
+      - run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - uses: azure/setup-helm@v3
+
+      - uses: helm/chart-releaser-action@v1.6.0
+        with:
+          pages_branch: main
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
